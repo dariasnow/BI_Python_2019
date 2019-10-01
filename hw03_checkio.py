@@ -2,9 +2,9 @@
 
 def checkio(a):
     x = []
-    for i in a:
-        if a.count(i) > 1:
-            x.append(i)
+    for element in a:
+        if a.count(element) > 1:
+            x.append(element)
     return x
 
 

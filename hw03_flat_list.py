@@ -2,11 +2,11 @@
 
 def flat_list(a):
     x = []
-    for i in a:
-        if isinstance(i, int):
-            x.append(i)
+    for el in a:
+        if isinstance(el, list):
+            x += flat_list(el)
         else:
-            x += flat_list(i)
+            x.append(el)
     return x
 
 
