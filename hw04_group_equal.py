@@ -1,0 +1,12 @@
+
+def group_equal(els):
+    import itertools  # я не уверена, что так можно делать, только не бей
+    final_list = [list(groups) for elements, groups in itertools.groupby(els)]
+    return final_list
+
+
+if __name__ == '__main__':
+    assert group_equal([1, 1, 4, 4, 4, "hello", "hello", 4]) == [[1, 1], [4, 4, 4], ["hello", "hello"], [4]]
+    assert group_equal([1, 2, 3, 4]) == [[1], [2], [3], [4]]
+    assert group_equal([1]) == [[1]]
+    assert group_equal([]) == []
