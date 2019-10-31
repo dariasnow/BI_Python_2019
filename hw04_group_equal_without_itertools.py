@@ -2,7 +2,7 @@
 def group_equal(els):
     final_list = []
     for (i, x) in enumerate(els):
-        if i < 1 or not isinstance(x, type(els[i - 1])) or x != els[i - 1]:
+        if i < 1 or x != els[i - 1]:
             final_list.append([x])
         else:
             final_list[-1].append(x)

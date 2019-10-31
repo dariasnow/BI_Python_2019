@@ -1,6 +1,7 @@
+import itertools
+
 
 def group_equal(els):
-    import itertools  # я не уверена, что так можно делать, только не бей
     final_list = [list(groups) for elements, groups in itertools.groupby(els)]
     return final_list
 
