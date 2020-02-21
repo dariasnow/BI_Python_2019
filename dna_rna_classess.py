@@ -17,7 +17,6 @@ class Dna:
         if self.error == 0:
             self.gc_content = round(gc_count / len(self.sequence) * 100, 2)
 
-
     def reverse_complement(self):
         reverse_sequence = [0] * len(self.sequence)
         for i in range(len(self.sequence)):
@@ -55,7 +54,6 @@ class Dna:
             self.transcribe = ''.join(transcript_seq)
             # I don't know how to make object of Rna
 
-
 class Rna:
     def __init__(self, sequence):
         self.sequence = sequence
@@ -74,7 +72,6 @@ class Rna:
                 break
         if self.error == 0:
             self.gc_content = round(gc_count / len(self.sequence) * 100, 2)
-
 
     def reverse_complement(self):
         pass
@@ -95,6 +92,7 @@ class Rna:
         if self.error == 0:
             self.reverse_complement = ''.join(reverse_sequence)
 
+            
 print('Please, input your sequence:')
 seq = input().upper()
 print('Please, input type of your sequence (DNA or RNA):')
@@ -116,5 +114,3 @@ elif type_seq == 'RNA':
     print(f'Complement sequence is {x.reverse_complement}')
 else:
     print('Incorrect type of sequence! Try again')
-
-
