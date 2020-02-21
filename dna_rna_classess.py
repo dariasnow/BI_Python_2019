@@ -54,6 +54,7 @@ class Dna:
             self.transcribe = ''.join(transcript_seq)
             # I don't know how to make object of Rna
 
+
 class Rna:
     def __init__(self, sequence):
         self.sequence = sequence
@@ -92,7 +93,7 @@ class Rna:
         if self.error == 0:
             self.reverse_complement = ''.join(reverse_sequence)
 
-            
+
 print('Please, input your sequence:')
 seq = input().upper()
 print('Please, input type of your sequence (DNA or RNA):')
