@@ -9,20 +9,21 @@ def gc_content(sequence):
     return round(gc_count / len(sequence) * 100, 2)
 
 
-parser = argparse.ArgumentParser(description='Filter .fastq files.')
+parser = argparse.ArgumentParser(description='Filter for FASTQ files')
 parser.add_argument('--min_length', action='store',
                     type=int, help='minimal read length, integer > 0')
-parser.add_argument('--keep_filtered', action='store_true', help='save failed reads')
-parser.add_argument('--gc_bounds', action='append',
-                    type=int, help='GC-content in %, if you want to point minimal content use it once,'
-                                   'if you want to point interval, please, use this argument TWICE'
-                                   'for example: --gc_content MIN --gc_content MAX')
-parser.add_argument('--output_base_name', action='store', help='common name for output file(s)')
+parser.add_argument('--keep_filtered', action='store_true', help='save failed reads, default: False')
+parser.add_argument('--gc_bounds', nargs='+',
+                    help='GC-content in %, if you want to point minimal content - point one threshold, '
+                         'if you want to point interval - point two thresholds. '
+                         'For example: --gc_content MIN or --gc_content MIN MAX.'
+                         'If no values are pointed all reads will be passed')
+parser.add_argument('-o', '--output_base_name', action='store', help='common name for output file(s)')
 parser.add_argument('file', help='FASTQ file should be filtered')
-args = parser.parse_args()
+args = vars(parser.parse_args())
 
 
-original_file = open(vars(args)['file'])
+original_file = open(args['file'])
 x = original_file.read().splitlines()
 new_file = {}
 
@@ -33,21 +34,21 @@ new_file_passed_len = {}
 new_file_failed = {}
 
 for key in new_file:
-    if len(new_file[key][0]) < vars(args)['min_length']:
-        if vars(args)['keep_filtered']:
+    if len(new_file[key][0]) < args['min_length']:
+        if args['keep_filtered']:
             new_file_failed.update({key: new_file[key]})
     else:
         new_file_passed_len.update({key: new_file[key]})
 
-if vars(args)['gc_bounds'] is not None:
+if args['gc_bounds'] is not None:
     new_file_passed_len_gc = {}
     for key in new_file_passed_len:
-        if gc_content(new_file_passed_len[key][0]) < vars(args)['gc_bounds'][0]:
-            if vars(args)['keep_filtered']:
+        if gc_content(new_file_passed_len[key][0]) < int(args['gc_bounds'][0]):
+            if args['keep_filtered']:
                 new_file_failed.update({key: new_file_passed_len[key]})
-        elif len(vars(args)['gc_bounds']) == 2:
-            if gc_content(new_file_passed_len[key][0]) > vars(args)['gc_bounds'][1]:
-                if vars(args)['keep_filtered']:
+        elif len(args['gc_bounds']) == 2:
+            if gc_content(new_file_passed_len[key][0]) > int(args['gc_bounds'][1]):
+                if args['keep_filtered']:
                     new_file_failed.update({key: new_file_passed_len[key]})
             else:
                 new_file_passed_len_gc.update({key: new_file_passed_len[key]})
@@ -57,10 +58,10 @@ if vars(args)['gc_bounds'] is not None:
 else:
     final_file_passed = new_file_passed_len
 
-if vars(args)['output_base_name'] is None:
-    base_name = vars(args)['file'][:-6]
+if args['output_base_name'] is None:
+    base_name = args['file'][:-6]
 else:
-    base_name = vars(args)['output_base_name']
+    base_name = args['output_base_name']
 
 output_passed = open(f"{base_name}__passed.fastq", 'w')
 for key in final_file_passed:
@@ -70,7 +71,7 @@ for key in final_file_passed:
     output_passed.write('\n')
 output_passed.close()
 
-if vars(args)['keep_filtered']:
+if args['keep_filtered']:
     output_failed = open(f'{base_name}__failed.fastq', 'w')
     for key in new_file_failed:
         output_failed.write(key)
