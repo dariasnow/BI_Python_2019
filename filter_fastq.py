@@ -13,48 +13,47 @@ def gc_content(sequence):
 
 
 def gc_content_threshold(arg):
-    global min_gc_content
-    global max_gc_content
     if arg is None:
-        min_gc_content = 0
-        max_gc_content = 100
+        min_gc = 0
+        max_gc = 100
     elif len(arg) == 1:
-        min_gc_content = int(arg[0])
-        max_gc_content = 100
+        min_gc = int(arg[0])
+        max_gc = 100
     else:
-        min_gc_content = int(arg[0])
-        max_gc_content = int(arg[1])
-    return min_gc_content, max_gc_content
+        min_gc = int(arg[0])
+        max_gc = int(arg[1])
+    return [min_gc, max_gc]
 
 
 def output_base_name(base, file):
-    global base_name
     if base is None:
         base_name_splitted = file.split('.')[:-1]
-        base_name = '.'.join(base_name_splitted)
+        out_base_name = '.'.join(base_name_splitted)
     else:
-        base_name = base
-    return base_name
+        out_base_name = base
+    return out_base_name
 
 
-def write_output_passed(n, s, c, q):
-    with open(f"{base_name}__passed.fastq", 'a') as output_passed:
+def write_output_passed(n, s, c, q, base):
+    with open(f"{base}__passed.fastq", 'a') as output_passed:
         output_passed.write(n)
         output_passed.write(s)
         output_passed.write(c)
         output_passed.write(q)
+    return output_passed
 
 
-def write_output_failed(n, s, c, q):
-    if args['keep_filtered']:
-        with open(f'{base_name}__failed.fastq', 'a') as output_failed:
+def write_output_failed(n, s, c, q, base, keep):
+    if keep:
+        with open(f'{base}__failed.fastq', 'a') as output_failed:
             output_failed.write(n)
             output_failed.write(s)
             output_failed.write(c)
             output_failed.write(q)
+        return f'{base}__failed.fastq'
 
 
-def read_and_filter(file, length):
+def read_and_filter(file, length, base, keep):
     with open(file) as input_file:
         for element in input_file:
             name = element
@@ -63,12 +62,12 @@ def read_and_filter(file, length):
             quality = next(input_file)
 
             if (len(seq) - 1) < length:
-                write_output_failed(name, seq, comment, quality)
+                write_output_failed(name, seq, comment, quality, base, keep)
             else:
                 if min_gc_content <= gc_content(seq) <= max_gc_content:
-                    write_output_passed(name, seq, comment, quality)
+                    write_output_passed(name, seq, comment, quality, base)
                 else:
-                    write_output_failed(name, seq, comment, quality)
+                    write_output_failed(name, seq, comment, quality, base, keep)
 
 
 parser = argparse.ArgumentParser(description='Filter for FASTQ files')
@@ -82,9 +81,11 @@ parser.add_argument('--gc_bounds', nargs='+',
                          'If no values are pointed all reads will be passed')
 parser.add_argument('-o', '--output_base_name', action='store', help='common name for output file(s)')
 parser.add_argument('-file', help='FASTQ file should be filtered')
-args = vars(parser.parse_args())
 
 
-gc_content_threshold(args['gc_bounds'])
-output_base_name(args['output_base_name'], args['file'])
-read_and_filter(args['file'], args['min_length'])
+if __name__ == '__main__':
+    args = vars(parser.parse_args())
+    min_gc_content = gc_content_threshold(args['gc_bounds'])[0]
+    max_gc_content = gc_content_threshold(args['gc_bounds'])[1]
+    base_name = output_base_name(args['output_base_name'], args['file'])
+    read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'])
