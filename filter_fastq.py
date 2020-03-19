@@ -59,7 +59,8 @@ else:
     final_file_passed = new_file_passed_len
 
 if args['output_base_name'] is None:
-    base_name = args['file'][:-6]
+    base_name_splitted = args['file'].split('.')[:-1]
+    base_name = '.'.join(base_name_splitted)
 else:
     base_name = args['output_base_name']
 
