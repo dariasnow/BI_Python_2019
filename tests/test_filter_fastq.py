@@ -5,6 +5,7 @@ import os
 from filter_fastq import gc_content, gc_content_threshold, output_base_name
 from filter_fastq import write_output_passed, write_output_failed
 
+
 class FilterTest(unittest.TestCase):
 
     def test_gc_content(self):
