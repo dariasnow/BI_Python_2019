@@ -20,17 +20,20 @@ class FilterTest(unittest.TestCase):
         self.assertEqual(gc_content_threshold([15, 30]), [15, 30])
 
     def test_output_base_name(self):
-        self.assertEqual(output_base_name('my_file_filtered', 'my_file.fastq'), 'my_file_filtered')
+        self.assertEqual(output_base_name('my_file_filtered', 'my_file.fastq'), 
+                         'my_file_filtered')
 
     def test_output_base_name_none(self):
         self.assertEqual(output_base_name(None, 'my_file.fastq'), 'my_file')
 
     def test_write_output_passed(self):
-        write_output_passed('@ReadName\n', 'ATGCATGCATGC\n', '+\n', 'FFHHJJFFHHJ#\n', 'test_output')
+        write_output_passed('@ReadName\n', 'ATGCATGCATGC\n', '+\n', 'FFHHJJFFHHJ#\n', 
+                            'test_output')
         self.assertTrue(filecmp.cmp('test_output__passed.fastq', 'test_file.fastq'))
         os.remove('test_output__passed.fastq')
 
     def test_write_output_failed(self):
-        write_output_failed('@ReadName\n', 'ATGCATGCATGC\n', '+\n', 'FFHHJJFFHHJ#\n', 'test_output', True)
+        write_output_failed('@ReadName\n', 'ATGCATGCATGC\n', '+\n', 'FFHHJJFFHHJ#\n', 
+                            'test_output', True)
         self.assertTrue(filecmp.cmp('test_output__failed.fastq', 'test_file.fastq'))
         os.remove('test_output__failed.fastq')
