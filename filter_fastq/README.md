@@ -28,7 +28,8 @@ Examples:
 
 Output files:
 - <output_base_name>__passed.fastq -- contains reads passed filtration
-- <output_base_name>__failed.fastq -- contains reads failed filtration  
+- <output_base_name>__failed.fastq -- contains reads failed filtration   
+- <output_base_name>__stats.txt -- contains number of reads that were dropped totally and by reasons
 
 Contact: dariasnow97@gmail.com
     
