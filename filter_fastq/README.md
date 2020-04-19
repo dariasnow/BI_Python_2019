@@ -17,7 +17,8 @@ Arguments:
      if you want to point interval - point two thresholds. For example: --gc_content MIN or --gc_content MIN MAX.  
      If no values are pointed all reads will be passed.  
     **-o**, **--output_base_name** -- common name for output file(s), default: base name of input file  
-    **--headcrop** -- cut the specified number of bases from the start of the read (before read length assessment), default: 0  
+    **--headcrop** -- cut the specified number of bases from the start of the read (before read length assessment), default: 0    
+    **--crop** -- cut the read to a specified length, integer > 0  
     **-file** -- FASTQ file should be filtered (required)  
     
 Examples:  
