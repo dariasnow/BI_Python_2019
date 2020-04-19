@@ -40,7 +40,7 @@ def write_output_passed(n, s, c, q, base):
         output_passed.write(s)
         output_passed.write(c)
         output_passed.write(q)
-    return output_passed
+    return f'{base}__passed.fastq'
 
 
 def write_output_failed(n, s, c, q, base, keep):
@@ -61,7 +61,19 @@ def write_output_stats(base, dropped_length, dropped_gc):
     return f'{base}__stats.txt'
 
 
-def read_and_filter(file, length, base, keep, headcrop):
+def headcrop_function(s, q, headcrop):
+    s = s[headcrop::]
+    q = q[headcrop::]
+    return s, q
+
+
+def crop_function(s, q, crop):
+    s = s[0:crop] + '\n'
+    q = q[0:crop] + '\n'
+    return s, q
+
+
+def read_and_filter(file, length, base, keep, headcrop, crop):
     with open(file) as input_file:
         dropped_length = 0
         dropped_gc = 0
@@ -76,9 +88,10 @@ def read_and_filter(file, length, base, keep, headcrop):
                 dropped_length += 1
             else:
                 if min_gc_content <= gc_content(seq) <= max_gc_content:
-                    seq_headcropped = seq[headcrop::]
-                    quality_headcropped = quality[headcrop::]
-                    write_output_passed(name, seq_headcropped, comment, quality_headcropped, base)
+                    seq, quality = headcrop_function(seq, quality, headcrop)
+                    if crop is not None and len(seq) - 1 > crop:
+                        seq, quality = crop_function(seq, quality, crop)
+                    write_output_passed(name, seq, comment, quality, base)
                 else:
                     write_output_failed(name, seq, comment, quality, base, keep)
                     dropped_gc += 1
@@ -96,6 +109,8 @@ parser.add_argument('--gc_bounds', nargs='+',
                          'If no values are pointed all reads will be passed')
 parser.add_argument('-o', '--output_base_name', action='store', help='common name for output file(s),'
                                                                      'default: base name of input file')
+parser.add_argument('--crop', action='store', type=int, default=None,
+                    help='cut the read to a specified length')
 parser.add_argument('--headcrop', action='store', type=int, default=0,
                     help='cut the specified number of bases from the start of the read, default: 0')
 parser.add_argument('-file', help='FASTQ file should be filtered')
@@ -109,4 +124,5 @@ if __name__ == '__main__':
     if os.path.exists(base_name + '__passed.fastq') or os.path.exists(base_name + '__failed.fastq'):
         raise FileExistsError(f'Output file already exists, remove or change output file name with -o')
     else:
-        read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'], args['headcrop'])
+        read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'], args['headcrop'],
+                        args['crop'])
