@@ -53,7 +53,7 @@ def write_output_failed(n, s, c, q, base, keep):
         return f'{base}__failed.fastq'
 
 
-def read_and_filter(file, length, base, keep):
+def read_and_filter(file, length, base, keep, headcrop):
     with open(file) as input_file:
         for element in input_file:
             name = element
@@ -61,13 +61,16 @@ def read_and_filter(file, length, base, keep):
             comment = next(input_file)
             quality = next(input_file)
 
-            if (len(seq) - 1) < length:
-                write_output_failed(name, seq, comment, quality, base, keep)
+            seq_headcropped = seq[headcrop::]
+            quality_headcropped = quality[headcrop::]
+
+            if (len(seq_headcropped) - 1) < length:
+                write_output_failed(name, seq_headcropped, comment, quality_headcropped, base, keep)
             else:
-                if min_gc_content <= gc_content(seq) <= max_gc_content:
-                    write_output_passed(name, seq, comment, quality, base)
+                if min_gc_content <= gc_content(seq_headcropped) <= max_gc_content:
+                    write_output_passed(name, seq_headcropped, comment, quality_headcropped, base)
                 else:
-                    write_output_failed(name, seq, comment, quality, base, keep)
+                    write_output_failed(name, seq_headcropped, comment, quality_headcropped, base, keep)
 
 
 parser = argparse.ArgumentParser(description='Filter for FASTQ files')
@@ -81,6 +84,8 @@ parser.add_argument('--gc_bounds', nargs='+',
                          'If no values are pointed all reads will be passed')
 parser.add_argument('-o', '--output_base_name', action='store', help='common name for output file(s),'
                                                                      'default: base name of input file')
+parser.add_argument('--headcrop', action='store', type=int, default=0,
+                    help='cut the specified number of bases from the start of the read, default: 0')
 parser.add_argument('-file', help='FASTQ file should be filtered')
 
 
@@ -93,4 +98,4 @@ if __name__ == '__main__':
         raise FileExistsError(f'Output file {base_name}__passed.fastq already exists, '
                               f'remove or change output file name with -o')
     else:
-        read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'])
+        read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'], args['headcrop'])
