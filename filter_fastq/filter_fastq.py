@@ -107,8 +107,7 @@ if __name__ == '__main__':
     min_gc_content = gc_content_threshold(args['gc_bounds'])[0]
     max_gc_content = gc_content_threshold(args['gc_bounds'])[1]
     base_name = output_base_name(args['output_base_name'], args['file'])
-    if os.path.exists(base_name + '__passed.fastq'):
-        raise FileExistsError(f'Output file {base_name}__passed.fastq already exists, '
-                              f'remove or change output file name with -o')
+    if os.path.exists(base_name + '__passed.fastq') or os.path.exists(base_name + '__failed.fastq'):
+        raise FileExistsError(f'Output file already exists, remove or change output file name with -o')
     else:
         read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'], args['headcrop'])
