@@ -1,4 +1,5 @@
 import argparse
+import os
 
 
 def gc_content(sequence):
@@ -27,15 +28,14 @@ def gc_content_threshold(arg):
 
 def output_base_name(base, file):
     if base is None:
-        base_name_splitted = file.split('.')[:-1]
-        out_base_name = '.'.join(base_name_splitted)
+        out_base_name = os.path.splitext(file)[0]
     else:
         out_base_name = base
     return out_base_name
 
 
 def write_output_passed(n, s, c, q, base):
-    with open(f"{base}__passed.fastq", 'a') as output_passed:
+    with open(f'{base}__passed.fastq', 'a') as output_passed:
         output_passed.write(n)
         output_passed.write(s)
         output_passed.write(c)
@@ -88,4 +88,8 @@ if __name__ == '__main__':
     min_gc_content = gc_content_threshold(args['gc_bounds'])[0]
     max_gc_content = gc_content_threshold(args['gc_bounds'])[1]
     base_name = output_base_name(args['output_base_name'], args['file'])
-    read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'])
+    if os.path.exists(base_name + '__passed.fastq'):
+        raise FileExistsError(f'Output file {base_name}__passed.fastq already exists, '
+                              f'remove or change output file name with -o')
+    else:
+        read_and_filter(args['file'], args['min_length'], base_name, args['keep_filtered'])
