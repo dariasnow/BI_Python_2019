@@ -71,17 +71,16 @@ def read_and_filter(file, length, base, keep, headcrop):
             comment = next(input_file)
             quality = next(input_file)
 
-            seq_headcropped = seq[headcrop::]
-            quality_headcropped = quality[headcrop::]
-
-            if (len(seq_headcropped) - 1) < length:
-                write_output_failed(name, seq_headcropped, comment, quality_headcropped, base, keep)
+            if (len(seq) - 1) < length:
+                write_output_failed(name, seq, comment, quality, base, keep)
                 dropped_length += 1
             else:
-                if min_gc_content <= gc_content(seq_headcropped) <= max_gc_content:
+                if min_gc_content <= gc_content(seq) <= max_gc_content:
+                    seq_headcropped = seq[headcrop::]
+                    quality_headcropped = quality[headcrop::]
                     write_output_passed(name, seq_headcropped, comment, quality_headcropped, base)
                 else:
-                    write_output_failed(name, seq_headcropped, comment, quality_headcropped, base, keep)
+                    write_output_failed(name, seq, comment, quality, base, keep)
                     dropped_gc += 1
         write_output_stats(base, dropped_length, dropped_gc)
 
