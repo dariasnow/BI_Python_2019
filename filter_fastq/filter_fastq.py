@@ -53,11 +53,11 @@ def write_output_failed(n, s, c, q, base, keep):
         return f'{base}__failed.fastq'
 
 
-def write_output_stats(base, dropped_length, dropped_gc):
+def write_output_stats(base, dropped_length, dropped_gc, sum_reads):
     with open(f'{base}__stats.txt', 'a') as output_stats:
-        output_stats.write(f'{dropped_length + dropped_gc} reads were dropped totally:\n')
-        output_stats.write(f'{dropped_length} reads were dropped because of smaller length\n')
-        output_stats.write(f'{dropped_gc} reads were dropped because of GC-content')
+        output_stats.write(f'{dropped_length + dropped_gc} of {sum_reads} reads were dropped totally:\n')
+        output_stats.write(f'\t {dropped_length} reads were dropped because of smaller length\n')
+        output_stats.write(f'\t {dropped_gc} reads were dropped because of GC-content')
     return f'{base}__stats.txt'
 
 
@@ -77,11 +77,13 @@ def read_and_filter(file, length, base, keep, headcrop, crop):
     with open(file) as input_file:
         dropped_length = 0
         dropped_gc = 0
+        sum_reads = 0
         for element in input_file:
             name = element
             seq = next(input_file)
             comment = next(input_file)
             quality = next(input_file)
+            sum_reads += 1
 
             if (len(seq) - 1) < length:
                 write_output_failed(name, seq, comment, quality, base, keep)
@@ -95,7 +97,7 @@ def read_and_filter(file, length, base, keep, headcrop, crop):
                 else:
                     write_output_failed(name, seq, comment, quality, base, keep)
                     dropped_gc += 1
-        write_output_stats(base, dropped_length, dropped_gc)
+        write_output_stats(base, dropped_length, dropped_gc, sum_reads)
 
 
 parser = argparse.ArgumentParser(description='Filter for FASTQ files')
