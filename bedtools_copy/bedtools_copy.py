@@ -73,12 +73,41 @@ def bed_intersect(intervals_a, intervals_b):
     return intersected_bed
 
 
+def bed_merge(intervals, distance):
+    merged_bed = collections.defaultdict(list)
+    for chrom in intervals:
+        end = intervals[chrom][0][1]
+        for n in range(len(intervals[chrom]) - 1):
+            a = intervals[chrom][n][0]
+            if n != 0 and a <= (end + distance):
+                continue
+            else:
+                b = intervals[chrom][n][1]
+                m = n + 1
+                c, d = intervals[chrom][m][0:2]
+                while c <= (b + distance) and m < (len(intervals[chrom]) - 1):
+                    b = max(b, d)
+                    m += 1
+                    c, d = intervals[chrom][m][0:2]
+                merged_bed[chrom].append((a, b))
+                end = b
+        if intervals[chrom][-1][0] > (end + distance):
+            merged_bed[chrom].append((intervals[chrom][-1][0], intervals[chrom][-1][1]))
+        else:
+            merged_bed[chrom][-1] = (merged_bed[chrom][-1][0], intervals[chrom][-1][1])
+    return merged_bed
+
+
 parser = argparse.ArgumentParser(description='Python implementation of some bedtools functions')
 
 parser.add_argument('-o', '--output_base_name', action='store', help='common name for output file,'
                                                                      'default: base name of input file')
 parser.add_argument('--sort', action='store_true', default=False,
                     help='sort intervals by chromosome, then by start position and stop position')
+parser.add_argument('--merge', action='store_true', default=False,
+                    help='merge intervals')
+parser.add_argument('--dist', action='store', type=int, default=0,
+                    help='maximum distance allowing to merge intervals, default: 0')
 parser.add_argument('-i', '--input', help='input file in BED format')
 parser.add_argument('--bed6', action='store_true', default=False,
                     help='indicates that input file in BED6 format, default: False')
@@ -104,3 +133,8 @@ if __name__ == '__main__':
         b_header, b_intervals = read_input_bed(args['b'])
         bed_intersected = bed_intersect(a_intervals, b_intervals)
         write_output_bed3(bed_intersected, (a_header + b_header), (base_name + '_intersected'))
+    if args['merge']:
+        base_name = output_base_name(args['output_base_name'], args['input'])
+        header, bed_intervals = read_input_bed(args['input'])
+        bed_merged = bed_merge(bed_intervals, args['dist'])
+        write_output_bed3(bed_merged, header, (base_name + '_merged'))
