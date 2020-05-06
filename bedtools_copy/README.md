@@ -4,11 +4,20 @@ A simple implementation of some bedtools functions for BED-files processing in P
 
 ## Usage  
 To run bedtools_copy download file "bedtools_copy.py" and type the following code in terminal:  
+- to sort or to merge intervals:  
 ```python3 /path/to/bedtools_copy.py [args] -i /path/to/input_file```  
+- to intersect intervals:  
+```python3 /path/to/bedtools_copy.py [args] -a /path/to/input_file_A -b /path/to/input_file_B ```  
 
-Options:  
-**--sort** -- sort intervals by chromosome, then by start position and stop position  
+Options:   
 **-o**, **--output_base_name** -- common name for output file, default: base name of input file  
-**-i**, **--input** -- input file in BED format')  
+**--bed6** -- indicates that input file in BED6 format, default: False  
+**-i**, **--input** -- input file to be sorted or merged in BED format')  
+**--sort** -- sort intervals by chromosome, then by start position and stop position   
+**--merge** -- merge intervals  
+**--dist** -- maximum distance allowing to merge intervals, default: 0  
+**--intersect** -- intersect intervals, remains positions presented in both files  
+**-a** -- the first file to intersect in BED format, should be sorted and merged before  
+**-b** -- the second file to intersect in BED format, should be sorted and merged before  
 
 --Other functions in process--
