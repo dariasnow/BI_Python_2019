@@ -145,9 +145,9 @@ parser.add_argument('-i', '--input', help='input file in BED format')
 parser.add_argument('--bed6', action='store_true', default=False,
                     help='indicates that input file in BED6 format, default: False')
 parser.add_argument('--intersect', action='store_true', default=False,
-                    help='intersect intervals, remains positions presented in both files')
+                    help='intersect intervals, returns positions presented in both files')
 parser.add_argument('--subtract', action='store_true', default=False,
-                    help='subtract intervals, remains positions that are NOT presented in the second file')
+                    help='subtract intervals, returns positions that are NOT presented in the second file')
 parser.add_argument('-a', help='the first file to intersect/to subtract in BED format, '
                                'should be sorted and merged before')
 parser.add_argument('-b', help='the second file to intersect/to subtract in BED format, '
