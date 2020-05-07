@@ -73,6 +73,39 @@ def bed_intersect(intervals_a, intervals_b):
     return intersected_bed
 
 
+def bed_subtract(intervals_a, intervals_b):
+    subtracted_bed = collections.defaultdict(list)
+    for chrom in intervals_a:
+        if chrom in intervals_b.keys():
+            for ints_a in intervals_a[chrom]:
+                a = ints_a[0]
+                b = ints_a[1]
+                for ints_b in intervals_b[chrom]:
+                    c = ints_b[0]
+                    d = ints_b[1]
+                    if d <= a:
+                        continue
+                    elif c >= b:
+                        subtracted_bed[chrom].append((a, b))
+                        break
+                    else:
+                        if c <= a:
+                            if d < b:
+                                a = d
+                            else:
+                                break
+                        else:
+                            end = c
+                            subtracted_bed[chrom].append((a, end))
+                            if d >= b:
+                                break
+                            else:
+                                a = d
+        else:
+            subtracted_bed[chrom] = intervals_a[chrom]
+    return subtracted_bed
+
+
 def bed_merge(intervals, distance):
     merged_bed = collections.defaultdict(list)
     for chrom in intervals:
@@ -113,8 +146,12 @@ parser.add_argument('--bed6', action='store_true', default=False,
                     help='indicates that input file in BED6 format, default: False')
 parser.add_argument('--intersect', action='store_true', default=False,
                     help='intersect intervals, remains positions presented in both files')
-parser.add_argument('-a', help='the first file to intersect in BED format, should be sorted and merged before')
-parser.add_argument('-b', help='the second file to intersect in BED format, should be sorted and merged before')
+parser.add_argument('--subtract', action='store_true', default=False,
+                    help='subtract intervals, remains positions that are NOT presented in the second file')
+parser.add_argument('-a', help='the first file to intersect/to subtract in BED format, '
+                               'should be sorted and merged before')
+parser.add_argument('-b', help='the second file to intersect/to subtract in BED format, '
+                               'should be sorted and merged before')
 
 
 if __name__ == '__main__':
@@ -138,3 +175,9 @@ if __name__ == '__main__':
         header, bed_intervals = read_input_bed(args['input'])
         bed_merged = bed_merge(bed_intervals, args['dist'])
         write_output_bed3(bed_merged, header, (base_name + '_merged'))
+    if args['subtract']:
+        base_name = output_base_name(args['output_base_name'], args['a'])
+        a_header, a_intervals = read_input_bed(args['a'])
+        b_header, b_intervals = read_input_bed(args['b'])
+        bed_subtracted = bed_subtract(a_intervals, b_intervals)
+        write_output_bed3(bed_subtracted, (a_header + b_header), (base_name + '_subtracted'))
